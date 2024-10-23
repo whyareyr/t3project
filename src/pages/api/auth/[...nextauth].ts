@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 import { compare } from "bcryptjs";
+import crypto from "crypto";
 
 // Initialize Prisma Client
 const prisma = new PrismaClient();
@@ -42,32 +43,44 @@ export default NextAuth({
           throw new Error("Invalid password");
         }
 
-        // Return user object if successful
+        // After successful login, create a session in the database manually
+        const sessionToken = crypto.randomBytes(32).toString("hex");
+
+        await prisma.session.create({
+          data: {
+            userId: user.id,
+            expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 din
+            sessionToken: sessionToken,
+          },
+        });
+
         return { id: user.id.toString(), email: user.email };
       },
     }),
   ],
   session: {
-    strategy: "jwt", // Using JWT for sessions
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+    updateAge: 30 * 24 * 60,
   },
+
   callbacks: {
     async jwt({ token, user }) {
-      // Store user ID in token if user is authenticated
       if (user) {
         token.id = user.id;
       }
       return token;
     },
     async session({ session, token }) {
-      // Attach the user ID to the session
       if (token?.id) {
         session.user.id = token.id;
       }
       return session;
     },
   },
-  secret: process.env.NEXTAUTH_SECRET,
+
   pages: {
     signIn: "/auth/signin",
   },
+  secret: process.env.NEXTAUTH_SECRET,
 });

@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")  // This pulls from your .env file
+  url      = env("DATABASE_URL") // This pulls from your .env file
 }
 
 model User {
@@ -13,4 +13,13 @@ model User {
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  sessions  Session[] // Relationship with sessions
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId      String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id])
 }
