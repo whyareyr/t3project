@@ -1,4 +1,3 @@
-"use client";
 import { type FormEvent, useEffect, useState } from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -18,7 +17,7 @@ export default function SignUp() {
       const redirectToHome = async () => {
         await router.push("/");
       };
-      void redirectToHome();
+      void redirectToHome(); // This is fine as it explicitly ignores the promise
     }
   }, [session, router]);
 
@@ -36,13 +35,20 @@ export default function SignUp() {
       if (res.ok) {
         setSuccess("Sign-up successful! Please sign in.");
         setError(null);
-        setTimeout(async () => await router.push("/auth/signin"), 2000);
+
+        // Use an async function to handle the timeout
+        const timeoutRedirect = async () => {
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+          await router.push("/auth/signin"); // Await the navigation
+        };
+        void timeoutRedirect(); // Explicitly ignore the promise
       } else {
         setError("Error in sign-up. Please try again.");
         setSuccess(null);
       }
-    } catch (error) {
+    } catch (err) {
       setError("Unexpected error. Please try again.");
+      console.error(err); // Log the error for debugging
     }
   };
 

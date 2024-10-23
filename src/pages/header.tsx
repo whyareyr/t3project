@@ -2,7 +2,7 @@ import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 
 export default function Header() {
-  const { data: session } = useSession(); // Access session data
+  const { data: session } = useSession();
 
   return (
     <header className="flex items-center justify-between bg-gradient-to-r from-[#3b1a6f] to-[#15162c] p-4 text-white">

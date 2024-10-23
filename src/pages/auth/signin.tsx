@@ -13,24 +13,30 @@ export default function SignIn() {
 
   useEffect(() => {
     if (session) {
-      router.push("/");
+      void router.push("/");
     }
   }, [session, router]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
+    try {
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
 
-    if (result?.error) {
-      setError(result.error);
-    } else {
-      router.push("/");
+      if (result?.error) {
+        setError(result.error);
+      } else {
+        await router.push("/");
+      }
+    } catch (error) {
+      setError("An unexpected error occurred. Please try again.");
+      console.error(error);
     }
   };
+
   return (
     <>
       <Head>

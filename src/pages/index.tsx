@@ -1,11 +1,9 @@
 import { signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
-import { api } from "~/utils/api";
 
 export default function Home() {
-  const hello = api.post.hello.useQuery({ text: "from tRPC" });
-  const { data: sessionData } = useSession();
+  const { data: sessionData, status } = useSession();
 
   return (
     <>
@@ -19,9 +17,11 @@ export default function Home() {
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#3b1a6f] to-[#15162c]">
         <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-          {sessionData ? (
+          {status === "loading" ? (
+            <p className="text-2xl text-white">Loading...</p>
+          ) : sessionData ? (
             <>
-              <h1 className="text-6xl font-extrabold tracking-tight text-white sm:text-[7rem]">
+              <h1 className="text-6xl font-extrabold tracking-tight text-white">
                 Welcome to{" "}
                 <span className="text-[#b63c8f]">Yoosha Raza&apos;s </span>
                 App
@@ -29,13 +29,14 @@ export default function Home() {
               <div className="flex justify-center">
                 <iframe
                   src="https://giphy.com/embed/XD9o33QG9BoMis7iM4"
-                  width="480"
-                  height="269"
+                  width="580"
+                  height="360"
                   style={{ border: "none" }}
                   allowFullScreen
                   title="Brooklyn Nine-Nine GIF"
                 ></iframe>
               </div>
+
               <div className="flex flex-col items-center gap-4">
                 <AuthShowcase />
               </div>

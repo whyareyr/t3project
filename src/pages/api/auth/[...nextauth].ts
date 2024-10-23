@@ -71,10 +71,45 @@ export default NextAuth({
       }
       return token;
     },
+    // async session({ session, token }) {
+    //   // Check if token is defined and has an id
+    //   if (token?.id) {
+    //     // Ensure session.user is defined with proper type
+    //     if (!session.user) {
+    //       session.user = {
+    //         id: token.id,
+    //         email: token.email,
+    //         name: null, // Default value
+    //         image: null, // Default value
+    //       };
+    //     } else {
+    //       // Type assertions to ensure TypeScript understands the types correctly
+    //       session.user.id = token.id as string; // Ensure token.id is a string
+    //     }
+    //   }
+
+    //   // If you need to add other properties, do so safely
+    //   return session;
+    // },
     async session({ session, token }) {
+      session.user =
+        session.user ||
+        ({} as {
+          id: string;
+          email: string;
+          name?: string | null;
+          image?: string | null;
+        });
+
       if (token?.id) {
-        session.user.id = token.id;
+        session.user.id = token.id as string; // Assert that token.id is a string
       }
+
+      // Set email and other properties safely
+      session.user.email = session.user.email ?? null; // Use null if undefined
+      session.user.name = session.user.name ?? null; // Use null if undefined
+      session.user.image = session.user.image ?? null; // Use null if undefined
+
       return session;
     },
   },
